@@ -15,9 +15,7 @@ export default function IssueList() {
   }, []);
 
   return (
-    <div>
-      <h2>All Issues</h2>
-
+    <>
       {issues.map(issue => (
         <IssueItem
           key={issue.id}
@@ -25,6 +23,8 @@ export default function IssueList() {
           onRefresh={loadIssues}
         />
       ))}
-    </div>
+    </>
   );
 }
+
+

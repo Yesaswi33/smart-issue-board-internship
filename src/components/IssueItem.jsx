@@ -5,20 +5,25 @@ export default function IssueItem({ issue, onRefresh }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const getBadgeClass = (status) => {
+    if (status === "Open") return "badge badge-open";
+    if (status === "In Progress") return "badge badge-progress";
+    return "badge badge-done";
+  };
+
   const handleStatusChange = async (e) => {
     const newStatus = e.target.value;
     setError("");
 
-    // Friendly UI block
     if (issue.status === "Open" && newStatus === "Done") {
-      setError("Please move issue to 'In Progress' first 🙂");
+      setError("Move issue to In Progress before Done 🙂");
       return;
     }
 
     try {
       setLoading(true);
       await updateIssueStatus(issue.id, newStatus);
-      onRefresh(); // reload issue list
+      onRefresh();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -27,31 +32,32 @@ export default function IssueItem({ issue, onRefresh }) {
   };
 
   return (
-    <div style={{ border: "1px solid #ccc", padding: 12, marginBottom: 10 }}>
+    <div className="card">
       <h4>{issue.title}</h4>
       <p>{issue.description}</p>
 
-      <label>
-        Status:
-        <select
-          value={issue.status}
-          onChange={handleStatusChange}
-          disabled={loading}
-        >
-          <option value="Open">Open</option>
-          <option value="In Progress">In Progress</option>
+      <span className={getBadgeClass(issue.status)}>
+        {issue.status}
+      </span>
 
-          {/* ❌ Disabled Done when Open */}
-          <option
-            value="Done"
-            disabled={issue.status === "Open"}
+      <div style={{ marginTop: 10 }}>
+        <label>
+          Change Status:
+          <select
+            value={issue.status}
+            onChange={handleStatusChange}
+            disabled={loading}
           >
-            Done
-          </option>
-        </select>
-      </label>
+            <option value="Open">Open</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Done" disabled={issue.status === "Open"}>
+              Done
+            </option>
+          </select>
+        </label>
+      </div>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <div className="error">{error}</div>}
     </div>
   );
 }
